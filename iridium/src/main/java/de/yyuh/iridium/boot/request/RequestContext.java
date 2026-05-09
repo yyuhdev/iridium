@@ -23,9 +23,14 @@ import de.yyuh.iridium.shared.result.Result;
 public final class RequestContext {
 
   private final HttpExchange exchange;
+  private Map<String, String> pathVariables = Map.of();
 
   public RequestContext(final HttpExchange exchange) {
     this.exchange = exchange;
+  }
+
+  public void setPathVariables(final Map<String, String> pathVariables) {
+    this.pathVariables = Map.copyOf(pathVariables);
   }
 
   public String method() {
@@ -38,6 +43,14 @@ public final class RequestContext {
 
   public String path() {
     return exchange.getRequestURI().getPath();
+  }
+
+  public Map<String, String> pathVariables() {
+    return pathVariables;
+  }
+
+  public Optional<String> pathVariable(final String name) {
+    return Optional.ofNullable(pathVariables.get(name));
   }
 
   public Map<String, List<String>> queryParams() {

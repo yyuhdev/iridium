@@ -8,8 +8,10 @@ import de.yyuh.iridium.boot.response.Response;
 @RestController
 public final class ExampleController {
 
-  @GET("/test")
+  @GET("/test/{id}")
   public Response handle(final RequestContext ctx) {
-    return Response.ok("test");
+    final var id = ctx.pathVariable("id").orElse("unknown");
+
+    return Response.ok("test id: " + id);
   }
 }

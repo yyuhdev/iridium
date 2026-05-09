@@ -49,7 +49,7 @@ public final class ControllerRegistry {
 
         final var path = pathResult.ok().get();
 
-        server.createPath(path, httpMethod, instance, method);
+        server.addRoute(path, httpMethod, instance, method);
       }
     }
   }
