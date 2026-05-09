@@ -14,3 +14,4 @@ rootProject.name = "iridium"
 include("iridium")
 include("iridium-api")
 include("shared")
+include("example")
