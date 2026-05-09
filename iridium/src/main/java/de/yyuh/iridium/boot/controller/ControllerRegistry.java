@@ -1,6 +1,7 @@
 package de.yyuh.iridium.boot.controller;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 import org.jspecify.annotations.NullMarked;
 
@@ -24,7 +25,13 @@ public final class ControllerRegistry {
         RestController.class);
 
     for (final var controllerClass : controllers) {
-      final var instance = instantiate(controllerClass);
+      final var instanceResult = instantiate(controllerClass);
+
+      if (instanceResult.isErr()) {
+        throw new IllegalStateException(instanceResult.err().get());
+      }
+
+      final var instance = instanceResult.ok().get();
 
       for (final var method : controllerClass.getDeclaredMethods()) {
         final var annotation = findRequestAnnotation(method);
@@ -47,7 +54,7 @@ public final class ControllerRegistry {
     }
   }
 
-  private static Annotation findRequestAnnotation(final java.lang.reflect.Method method) {
+  private static Annotation findRequestAnnotation(final Method method) {
     for (final var annotation : method.getAnnotations()) {
       if (annotation.annotationType().isAnnotationPresent(RequestType.class)) {
         return annotation;
@@ -65,9 +72,9 @@ public final class ControllerRegistry {
     }).mapErr(Exception::getMessage);
   }
 
-  private static Object instantiate(final Class<?> clazz) {
+  private static Result<Object, String> instantiate(final Class<?> clazz) {
     return Result.of(() -> {
-      return clazz.getDeclaredConstructor().newInstance();
+      return (Object) clazz.getDeclaredConstructor().newInstance();
     }).mapErr(Exception::getMessage);
   }
 }

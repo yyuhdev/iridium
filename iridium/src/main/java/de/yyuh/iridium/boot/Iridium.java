@@ -16,6 +16,7 @@ public final class Iridium {
     final var registry = new ControllerRegistry(server);
 
     registry.scan();
+    server.start();
   }
 
   public static void run(

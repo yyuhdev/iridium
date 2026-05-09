@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface IridiumBootstrap {
 
-  int port();
+  int port() default 8080;
 
-  String host();
+  String host() default "0.0.0.0";
 
 }
