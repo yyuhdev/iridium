@@ -162,7 +162,7 @@ public final class IridiumWebServer {
       }
 
       return response;
-    }).mapErr(Exception::getMessage);
+    }).mapErr(e -> e.getMessage() != null ? e.getMessage() : e.getClass().getName());
   }
 
   private static void apply(final RequestContext ctx, final Response response) {

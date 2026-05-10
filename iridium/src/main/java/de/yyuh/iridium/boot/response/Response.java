@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.jspecify.annotations.NullMarked;
 
+import de.yyuh.iridium.boot.json.JsonMapper;
+
 /**
  * An immutable HTTP response with status code, headers, and body.
  *
@@ -51,6 +53,31 @@ public record Response(int status, Map<String, List<String>> headers, byte[] bod
    */
   public static Response ok(final byte[] body) {
     return new Response(200, Map.of(), body);
+  }
+
+  /**
+   * Creates a {@code 200 OK} response with a JSON-serialized object body.
+   *
+   * @param value the object to serialize
+   * @return the response
+   */
+  public static Response json(final Object value) {
+    return json(200, value);
+  }
+
+  /**
+   * Creates a response with the given status and a JSON-serialized
+   * object body.
+   *
+   * @param status the HTTP status code
+   * @param value  the object to serialize
+   * @return the response
+   */
+  public static Response json(final int status, final Object value) {
+    final var result = JsonMapper.write(value);
+    return result.isOk()
+        ? new Response(status, Map.of("Content-Type", List.of("application/json")), result.unwrap())
+        : status(500, "{\"error\":\"serialization failed\"}");
   }
 
   /**

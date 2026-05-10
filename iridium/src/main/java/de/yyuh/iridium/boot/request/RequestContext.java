@@ -17,6 +17,9 @@ import org.jspecify.annotations.NullMarked;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import de.yyuh.iridium.boot.json.JsonMapper;
 import de.yyuh.iridium.shared.result.Result;
 
 /**
@@ -181,6 +184,28 @@ public final class RequestContext {
    */
   public Result<byte[], IOException> bodyBytes() {
     return Result.of(this::readBody);
+  }
+
+  /**
+   * Reads the request body and deserializes it from JSON.
+   *
+   * @param <T>  the target type
+   * @param type the target class
+   * @return a {@link Result} containing the parsed object or an exception
+   */
+  public <T> Result<T, Exception> body(final Class<T> type) {
+    return bodyBytes().<Exception>mapErr(e -> e).flatMap(bytes -> JsonMapper.read(bytes, type));
+  }
+
+  /**
+   * Reads the request body and deserializes it from JSON for generic types.
+   *
+   * @param <T>     the target type
+   * @param typeRef the type reference capturing generic information
+   * @return a {@link Result} containing the parsed object or an exception
+   */
+  public <T> Result<T, Exception> body(final TypeReference<T> typeRef) {
+    return bodyBytes().<Exception>mapErr(e -> e).flatMap(bytes -> JsonMapper.read(bytes, typeRef));
   }
 
   /**
