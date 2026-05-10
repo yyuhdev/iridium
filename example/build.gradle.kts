@@ -9,4 +9,5 @@ application {
 
 dependencies() {
   implementation(project(":iridium"))
+  implementation(project(":shared"))
 }
