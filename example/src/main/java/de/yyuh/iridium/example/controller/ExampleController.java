@@ -1,26 +1,60 @@
 package de.yyuh.iridium.example.controller;
 
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import de.yyuh.iridium.boot.controller.type.RestController;
 import de.yyuh.iridium.boot.request.RequestContext;
+import de.yyuh.iridium.boot.request.type.DELETE;
 import de.yyuh.iridium.boot.request.type.GET;
+import de.yyuh.iridium.boot.request.type.POST;
 import de.yyuh.iridium.boot.response.Response;
 
-/**
- * A demonstration REST controller with a single {@code GET} endpoint.
- */
 @RestController
 public final class ExampleController {
 
-  /**
-   * Handles {@code GET /test/{id}} by echoing the path variable.
-   *
-   * @param ctx the request context containing the path variable {@code id}
-   * @return a {@code 200 OK} response with the extracted id
-   */
-  @GET("/test/{id}")
-  public Response handle(final RequestContext ctx) {
-    final var id = ctx.pathVariable("id").orElse("unknown");
+  private final Map<String, User> users = new ConcurrentHashMap<>();
 
-    return Response.ok("test id: " + id);
+  public record CreateUser(String name, String email) {}
+
+  public record User(String id, String name, String email) {}
+
+  @GET("/users")
+  public Response listUsers(final RequestContext ctx) {
+    final var all = List.copyOf(users.values());
+    return Response.json(all);
+  }
+
+  @GET("/users/{id}")
+  public Response getUser(final RequestContext ctx) {
+    final var id = ctx.pathVariable("id").orElse("unknown");
+    final var user = users.get(id);
+
+    return user != null
+        ? Response.json(user)
+        : Response.notFound("{\"error\":\"user not found\"}");
+  }
+
+  @POST("/users")
+  public Response createUser(final RequestContext ctx) {
+    final var result = ctx.body(CreateUser.class);
+
+    return result.map(dto -> {
+      final var user = new User(java.util.UUID.randomUUID().toString(), dto.name(), dto.email());
+      users.put(user.id(), user);
+      return Response.json(201, user);
+    })
+        .unwrapOrElse(e -> Response.badRequest("{\"error\":\"invalid json: " + e.getMessage() + "\"}"));
+  }
+
+  @DELETE("/users/{id}")
+  public Response deleteUser(final RequestContext ctx) {
+    final var id = ctx.pathVariable("id").orElse("unknown");
+    final var removed = users.remove(id);
+
+    return removed != null
+        ? Response.json(removed)
+        : Response.notFound("{\"error\":\"user not found\"}");
   }
 }
