@@ -3,6 +3,8 @@ package de.yyuh.iridium.boot.health;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.time.Instant;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.jspecify.annotations.NullMarked;
 

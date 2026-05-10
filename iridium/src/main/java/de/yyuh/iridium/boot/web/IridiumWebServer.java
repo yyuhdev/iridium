@@ -3,7 +3,6 @@ package de.yyuh.iridium.boot.web;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,7 +70,6 @@ public final class IridiumWebServer {
         ctx.send(500, "Internal Server Error");
 
         log.error("Internal Server Error", e);
-        e.printStackTrace();
       });
     });
   }
