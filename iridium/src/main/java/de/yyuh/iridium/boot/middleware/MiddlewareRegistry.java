@@ -3,6 +3,7 @@ package de.yyuh.iridium.boot.middleware;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import org.jspecify.annotations.NullMarked;
 
@@ -12,7 +13,9 @@ import de.yyuh.iridium.boot.annotation.Order;
 import de.yyuh.iridium.boot.middleware.annotation.MiddlewareComponent;
 import de.yyuh.iridium.boot.response.Response;
 import de.yyuh.iridium.boot.scanner.ClasspathScanner;
+import de.yyuh.iridium.boot.web.GlobPattern;
 import de.yyuh.iridium.boot.web.IridiumWebServer;
+import de.yyuh.iridium.shared.log.Log;
 
 /**
  * Discovers {@link MiddlewareComponent @MiddlewareComponent} classes on
@@ -21,6 +24,8 @@ import de.yyuh.iridium.boot.web.IridiumWebServer;
  */
 @NullMarked
 public final class MiddlewareRegistry implements IridiumComponentRegistry {
+
+  private static final Log log = Log.of(MiddlewareRegistry.class);
 
   private final IridiumWebServer server;
 
@@ -39,12 +44,21 @@ public final class MiddlewareRegistry implements IridiumComponentRegistry {
     final var middlewareClasses = ClasspathScanner.withAnnotation(MiddlewareComponent.class);
     final var chain = new ArrayList<Middleware>();
 
-    for (final var clazz : middlewareClasses) {
-      final var instance = instantiateMiddleware(clazz);
-      chain.add(instance);
-    }
+    middlewareClasses.stream()
+        .sorted(Comparator.comparingInt(MiddlewareRegistry::orderOf))
+        .forEach(clazz -> {
+          final var instance = instantiateMiddleware(clazz);
+          final var annotation = clazz.getAnnotation(MiddlewareComponent.class);
+          final var wrapped = wrapWithPathFilter(instance, annotation);
 
-    chain.sort(Comparator.comparingInt(MiddlewareRegistry::orderOf));
+          log.debug("  %s (order=%d, path=%s, exclude=%s)",
+              clazz.getSimpleName(), orderOf(clazz),
+              List.of(annotation.path()), List.of(annotation.exclude()));
+
+          chain.add(wrapped);
+        });
+
+    log.info("Found %d @MiddlewareComponent classes", chain.size());
 
     server.setMiddlewares(chain);
   }
@@ -105,8 +119,33 @@ public final class MiddlewareRegistry implements IridiumComponentRegistry {
     return false;
   }
 
-  private static int orderOf(final Middleware middleware) {
-    final var order = middleware.getClass().getAnnotation(Order.class);
+  private static Middleware wrapWithPathFilter(
+      final Middleware middleware,
+      final MiddlewareComponent annotation) {
+    final var includePatterns = GlobPattern.parseAll(annotation.path());
+    final var excludePatterns = GlobPattern.parseAll(annotation.exclude());
+
+    if (includePatterns.isEmpty() && excludePatterns.isEmpty()) {
+      return middleware;
+    }
+
+    return (ctx, next) -> {
+      final var path = ctx.path();
+
+      if (!includePatterns.isEmpty() && !GlobPattern.anyMatches(includePatterns, path)) {
+        return next.handle(ctx);
+      }
+
+      if (GlobPattern.anyMatches(excludePatterns, path)) {
+        return next.handle(ctx);
+      }
+
+      return middleware.handle(ctx, next);
+    };
+  }
+
+  private static int orderOf(final Class<?> clazz) {
+    final var order = clazz.getAnnotation(Order.class);
     return order != null ? order.value() : 0;
   }
 }
