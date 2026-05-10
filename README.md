@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="img/logo.png" alt="Logo" height="240">
+</div>
+
 # Iridium
 
 A lightweight, annotation-driven HTTP micro-framework for Java 25. Zero external server dependencies — Inspired by Spring Boot but purposefully minimal.
