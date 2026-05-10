@@ -10,6 +10,7 @@ import org.jspecify.annotations.NullMarked;
 
 import com.sun.net.httpserver.HttpServer;
 
+import de.yyuh.iridium.boot.middleware.Middleware;
 import de.yyuh.iridium.boot.request.RequestContext;
 import de.yyuh.iridium.boot.response.Response;
 import de.yyuh.iridium.shared.result.Result;
@@ -18,6 +19,8 @@ import de.yyuh.iridium.shared.result.Result;
 public final class IridiumWebServer {
 
   private final HttpServer httpServer;
+
+  private List<Middleware> middlewares = List.of();
   private final List<Route> routes = new ArrayList<>();
 
   public IridiumWebServer(
@@ -32,34 +35,25 @@ public final class IridiumWebServer {
     this.httpServer = result.ok().get();
 
     this.httpServer.createContext("/", exchange -> {
-      final var path = exchange.getRequestURI().getPath();
-      final var method = exchange.getRequestMethod();
-
-      for (final var route : routes) {
-        if (!route.httpMethod().equalsIgnoreCase(method)) {
-          continue;
-        }
-
-        final var match = route.pattern().match(path);
-
-        if (match.isPresent()) {
-          final var ctx = new RequestContext(exchange);
-          ctx.setPathVariables(match.get());
-
-          final var invokeResult = invoke(route.controller(), route.handler(), ctx);
-
-          if (!invokeResult.isErr()) {
-            apply(ctx, invokeResult.ok().get());
-          }
-
-          return;
-        }
-      }
-
-      // No matching route found
       final var ctx = new RequestContext(exchange);
-      ctx.send(404, "Not Found");
+
+      final var routeHandler = buildRouteHandler();
+      final var chain = buildMiddlewareChain(routeHandler);
+
+      Result.of(() -> {
+        final var response = chain.handle(ctx);
+        apply(ctx, response);
+        return null;
+      }).ifErr(e -> {
+        ctx.send(500, "Internal Server Error");
+
+        e.printStackTrace();
+      });
     });
+  }
+
+  public void setMiddlewares(final List<Middleware> middlewares) {
+    this.middlewares = Collections.unmodifiableList(new ArrayList<>(middlewares));
   }
 
   public void start() {
@@ -78,7 +72,44 @@ public final class IridiumWebServer {
       String httpMethod,
       PathPattern pattern,
       Object controller,
-      Method handler) {}
+      Method handler) {
+  }
+
+  private Middleware.Next buildMiddlewareChain(final Middleware.Next finalHandler) {
+    Middleware.Next chain = finalHandler;
+
+    for (int i = middlewares.size() - 1; i >= 0; i--) {
+      final var middleware = middlewares.get(i);
+      final var next = chain;
+      chain = ctx -> middleware.handle(ctx, next);
+    }
+
+    return chain;
+  }
+
+  private Middleware.Next buildRouteHandler() {
+    return ctx -> {
+      for (final var route : routes) {
+        if (!route.httpMethod().equalsIgnoreCase(ctx.method())) {
+          continue;
+        }
+
+        final var match = route.pattern().match(ctx.path());
+
+        if (match.isPresent()) {
+          ctx.setPathVariables(match.get());
+
+          final var invokeResult = invoke(route.controller(), route.handler(), ctx);
+
+          if (!invokeResult.isErr()) {
+            return invokeResult.ok().get();
+          }
+        }
+      }
+
+      return Response.notFound("Not Found");
+    };
+  }
 
   private static Result<Response, String> invoke(
       final Object controller,

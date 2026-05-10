@@ -153,11 +153,6 @@ public sealed interface Result<T, E> permits Result.Ok, Result.Err {
    */
   record Ok<T, E>(T value) implements Result<T, E> {
 
-    public Ok {
-      if (value == null)
-        throw new IllegalArgumentException("Ok value must not be null");
-    }
-
     /** {@inheritDoc} */
     @Override
     public boolean isOk() {

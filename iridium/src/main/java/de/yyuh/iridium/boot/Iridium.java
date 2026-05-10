@@ -3,6 +3,7 @@ package de.yyuh.iridium.boot;
 import org.jspecify.annotations.NullMarked;
 
 import de.yyuh.iridium.boot.controller.ControllerRegistry;
+import de.yyuh.iridium.boot.middleware.MiddlewareRegistry;
 import de.yyuh.iridium.boot.web.IridiumWebServer;
 
 @NullMarked
@@ -13,9 +14,13 @@ public final class Iridium {
       final int port,
       final String[] args) {
     final var server = new IridiumWebServer(host, port);
-    final var registry = new ControllerRegistry(server);
 
-    registry.scan();
+    final var middlewareRegistry = new MiddlewareRegistry(server);
+    middlewareRegistry.scan();
+
+    final var controllerRegistry = new ControllerRegistry(server);
+    controllerRegistry.scan();
+
     server.start();
   }
 

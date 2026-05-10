@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import org.jspecify.annotations.NullMarked;
 
+import de.yyuh.iridium.boot.IridiumComponentRegistry;
 import de.yyuh.iridium.boot.controller.type.RestController;
 import de.yyuh.iridium.boot.request.type.RequestType;
 import de.yyuh.iridium.boot.scanner.ClasspathScanner;
@@ -12,7 +13,7 @@ import de.yyuh.iridium.boot.web.IridiumWebServer;
 import de.yyuh.iridium.shared.result.Result;
 
 @NullMarked
-public final class ControllerRegistry {
+public final class ControllerRegistry implements IridiumComponentRegistry {
 
   private final IridiumWebServer server;
 
@@ -20,12 +21,13 @@ public final class ControllerRegistry {
     this.server = server;
   }
 
+  @Override
   public void scan() {
     final var controllers = ClasspathScanner.withAnnotation(
         RestController.class);
 
     for (final var controllerClass : controllers) {
-      final var instanceResult = instantiate(controllerClass);
+      final var instanceResult = this.instantiate(controllerClass);
 
       if (instanceResult.isErr()) {
         throw new IllegalStateException(instanceResult.err().get());
@@ -72,9 +74,4 @@ public final class ControllerRegistry {
     }).mapErr(Exception::getMessage);
   }
 
-  private static Result<Object, String> instantiate(final Class<?> clazz) {
-    return Result.of(() -> {
-      return (Object) clazz.getDeclaredConstructor().newInstance();
-    }).mapErr(Exception::getMessage);
-  }
 }
