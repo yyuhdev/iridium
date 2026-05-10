@@ -12,15 +12,26 @@ import de.yyuh.iridium.boot.scanner.ClasspathScanner;
 import de.yyuh.iridium.boot.web.IridiumWebServer;
 import de.yyuh.iridium.shared.result.Result;
 
+/**
+ * Discovers {@link RestController @RestController} classes on the
+ * classpath and registers their handler methods as HTTP routes
+ * with the web server.
+ */
 @NullMarked
 public final class ControllerRegistry implements IridiumComponentRegistry {
 
   private final IridiumWebServer server;
 
+  /**
+   * Constructs a registry tied to the given server.
+   *
+   * @param server the web server to register routes with
+   */
   public ControllerRegistry(final IridiumWebServer server) {
     this.server = server;
   }
 
+  /** {@inheritDoc} */
   @Override
   public void scan() {
     final var controllers = ClasspathScanner.withAnnotation(

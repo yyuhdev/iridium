@@ -14,12 +14,26 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.NullMarked;
 
+/**
+ * Scans the classpath for classes and annotations.
+ *
+ * <p>Iterates over every entry in {@code java.class.path}, recursing
+ * into directories and {@code .jar} files. Useful for discovering
+ * annotated controllers, middleware, and components at startup.</p>
+ *
+ * <p>This class cannot be instantiated.</p>
+ */
 @NullMarked
 public final class ClasspathScanner {
 
   private ClasspathScanner() {
   }
 
+  /**
+   * Returns all classes reachable from the current classpath.
+   *
+   * @return a (possibly empty) set of loaded classes
+   */
   public static Set<Class<?>> allClasses() {
     final Set<Class<?>> classes = new LinkedHashSet<>();
 
@@ -41,12 +55,25 @@ public final class ClasspathScanner {
     return classes;
   }
 
+  /**
+   * Returns all classpath classes annotated with the given annotation.
+   *
+   * @param annotation the annotation type to filter by
+   * @return a set of annotated classes
+   */
   public static Set<Class<?>> withAnnotation(final Class<? extends Annotation> annotation) {
     return allClasses().stream()
         .filter(c -> c.isAnnotationPresent(annotation))
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
+  /**
+   * Returns all methods annotated (directly or via meta-annotation)
+   * with the given annotation.
+   *
+   * @param annotation the annotation type to filter by
+   * @return a set of matching methods
+   */
   public static Set<Method> methodsWithAnnotation(final Class<? extends Annotation> annotation) {
     return allClasses().stream()
         .flatMap(c -> Arrays.stream(c.getDeclaredMethods()))
@@ -106,7 +133,18 @@ public final class ClasspathScanner {
     }
   }
 
+  /**
+   * Thrown when the classpath cannot be traversed (I/O errors in
+   * directory walking or JAR reading).
+   */
   public static final class ClasspathScanException extends RuntimeException {
+
+    /**
+     * Constructs a new exception with a message and cause.
+     *
+     * @param message the error description
+     * @param cause   the underlying cause
+     */
     public ClasspathScanException(final String message, final Throwable cause) {
       super(message, cause);
     }

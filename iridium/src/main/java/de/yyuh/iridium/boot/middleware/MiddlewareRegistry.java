@@ -14,15 +14,26 @@ import de.yyuh.iridium.boot.response.Response;
 import de.yyuh.iridium.boot.scanner.ClasspathScanner;
 import de.yyuh.iridium.boot.web.IridiumWebServer;
 
+/**
+ * Discovers {@link MiddlewareComponent @MiddlewareComponent} classes on
+ * the classpath and registers them with the web server in the order
+ * defined by {@link de.yyuh.iridium.boot.annotation.Order @Order}.
+ */
 @NullMarked
 public final class MiddlewareRegistry implements IridiumComponentRegistry {
 
   private final IridiumWebServer server;
 
+  /**
+   * Constructs a registry tied to the given server.
+   *
+   * @param server the web server to register middleware with
+   */
   public MiddlewareRegistry(final IridiumWebServer server) {
     this.server = server;
   }
 
+  /** {@inheritDoc} */
   @Override
   public void scan() {
     final var middlewareClasses = ClasspathScanner.withAnnotation(MiddlewareComponent.class);

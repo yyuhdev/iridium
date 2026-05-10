@@ -15,6 +15,13 @@ import de.yyuh.iridium.boot.request.RequestContext;
 import de.yyuh.iridium.boot.response.Response;
 import de.yyuh.iridium.shared.result.Result;
 
+/**
+ * An embedded HTTP server backed by {@code com.sun.net.httpserver.HttpServer}.
+ *
+ * <p>Manages the registered routes and the middleware chain. All requests
+ * hit the root context, where the middleware chain runs before matching
+ * a registered route.</p>
+ */
 @NullMarked
 public final class IridiumWebServer {
 
@@ -23,6 +30,14 @@ public final class IridiumWebServer {
   private List<Middleware> middlewares = List.of();
   private final List<Route> routes = new ArrayList<>();
 
+  /**
+   * Constructs and configures the server, including the root
+   * request handler.
+   *
+   * @param host the bind address
+   * @param port the listen port
+   * @throws IllegalStateException if the server cannot be created
+   */
   public IridiumWebServer(
       final String host,
       final int port) {
@@ -52,14 +67,30 @@ public final class IridiumWebServer {
     });
   }
 
+  /**
+   * Sets the ordered list of middleware components.
+   *
+   * @param middlewares the middleware chain
+   */
   public void setMiddlewares(final List<Middleware> middlewares) {
     this.middlewares = Collections.unmodifiableList(new ArrayList<>(middlewares));
   }
 
+  /**
+   * Starts the server, beginning to accept incoming connections.
+   */
   public void start() {
     httpServer.start();
   }
 
+  /**
+   * Registers a new route.
+   *
+   * @param path       the route path pattern
+   * @param httpMethod the HTTP method (e.g. {@code GET})
+   * @param controller the controller instance
+   * @param handler    the handler method to invoke
+   */
   public void addRoute(
       final String path,
       final String httpMethod,
