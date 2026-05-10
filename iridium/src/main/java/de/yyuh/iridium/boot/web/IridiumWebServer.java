@@ -3,6 +3,7 @@ package de.yyuh.iridium.boot.web;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,9 +20,11 @@ import de.yyuh.iridium.shared.result.Result;
 /**
  * An embedded HTTP server backed by {@code com.sun.net.httpserver.HttpServer}.
  *
- * <p>Manages the registered routes and the middleware chain. All requests
+ * <p>
+ * Manages the registered routes and the middleware chain. All requests
  * hit the root context, where the middleware chain runs before matching
- * a registered route.</p>
+ * a registered route.
+ * </p>
  */
 @NullMarked
 public final class IridiumWebServer {
@@ -67,6 +70,7 @@ public final class IridiumWebServer {
       }).ifErr(e -> {
         ctx.send(500, "Internal Server Error");
 
+        log.error("Internal Server Error", e);
         e.printStackTrace();
       });
     });
@@ -102,8 +106,6 @@ public final class IridiumWebServer {
       final String httpMethod,
       final Object controller,
       final Method handler) {
-    log.debug("Registering route: %s %s -> %s.%s",
-        httpMethod, path, controller.getClass().getSimpleName(), handler.getName());
     routes.add(new Route(httpMethod, PathPattern.parse(path), controller, handler));
   }
 

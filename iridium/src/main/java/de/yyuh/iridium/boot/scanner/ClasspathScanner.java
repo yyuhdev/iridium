@@ -20,11 +20,15 @@ import de.yyuh.iridium.shared.log.Log;
 /**
  * Scans the classpath for classes and annotations.
  *
- * <p>Iterates over every entry in {@code java.class.path}, recursing
+ * <p>
+ * Iterates over every entry in {@code java.class.path}, recursing
  * into directories and {@code .jar} files. Useful for discovering
- * annotated controllers, middleware, and components at startup.</p>
+ * annotated controllers, middleware, and components at startup.
+ * </p>
  *
- * <p>This class cannot be instantiated.</p>
+ * <p>
+ * This class cannot be instantiated.
+ * </p>
  */
 @NullMarked
 public final class ClasspathScanner {
@@ -42,8 +46,6 @@ public final class ClasspathScanner {
   public static Set<Class<?>> allClasses() {
     final Set<Class<?>> classes = new LinkedHashSet<>();
 
-    log.debug("Scanning classpath ...");
-
     for (final String entry : classpathEntries()) {
       final File file = new File(entry);
 
@@ -60,7 +62,6 @@ public final class ClasspathScanner {
       }
     }
 
-    log.debug("Classpath scan found %d classes", classes.size());
     return classes;
   }
 

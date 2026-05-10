@@ -11,11 +11,15 @@ import de.yyuh.iridium.shared.timer.Timer;
 /**
  * Bootstraps and starts an Iridium application.
  *
- * <p>Scans the classpath for {@code @MiddlewareComponent} and
+ * <p>
+ * Scans the classpath for {@code @MiddlewareComponent} and
  * {@code @RestController} classes, registers them with the embedded
- * HTTP server, and starts listening.</p>
+ * HTTP server, and starts listening.
+ * </p>
  *
- * <p>Call {@link #run(Class, String[])} from your {@code main} method.</p>
+ * <p>
+ * Call {@link #run(Class, String[])} from your {@code main} method.
+ * </p>
  */
 @NullMarked
 public final class Iridium {
@@ -53,6 +57,12 @@ public final class Iridium {
 
     log.info("Iridium is ready on http://%s:%d/ (startup took %dms)",
         host, port, startupTimer.stop());
+
+    log.info("");
+    log.info("%s ██ ▄▄▄▄  ▄▄ ▄▄▄▄  ▄▄ ▄▄ ▄▄ ▄▄   ▄▄", Log.BLUE);
+    log.info("%s ██ ██▄█▄ ██ ██▀██ ██ ██ ██ ██▀▄▀██", Log.BLUE);
+    log.info("%s ██ ██ ██ ██ ████▀ ██ ▀███▀ ██   ██", Log.BLUE);
+    log.info("");
   }
 
   /**

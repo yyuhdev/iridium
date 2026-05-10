@@ -7,9 +7,12 @@ import de.yyuh.iridium.shared.result.Result;
  * Common contract for component registries that scan the classpath
  * and instantiate annotated classes.
  *
- * <p>Implementations — e.g. {@link de.yyuh.iridium.boot.controller.ControllerRegistry}
+ * <p>
+ * Implementations — e.g.
+ * {@link de.yyuh.iridium.boot.controller.ControllerRegistry}
  * and {@link de.yyuh.iridium.boot.middleware.MiddlewareRegistry} — override
- * {@link #scan()} to discover and register their respective component types.</p>
+ * {@link #scan()} to discover and register their respective component types.
+ * </p>
  */
 public interface IridiumComponentRegistry {
 
@@ -27,7 +30,6 @@ public interface IridiumComponentRegistry {
    */
   public default Result<Object, String> instantiate(final Class<?> clazz) {
     final var log = Log.of(IridiumComponentRegistry.class);
-    log.debug("Instantiating %s", clazz.getSimpleName());
 
     return Result.of(() -> {
       return (Object) clazz.getDeclaredConstructor().newInstance();

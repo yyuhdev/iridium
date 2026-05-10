@@ -51,14 +51,10 @@ public final class MiddlewareRegistry implements IridiumComponentRegistry {
           final var annotation = clazz.getAnnotation(MiddlewareComponent.class);
           final var wrapped = wrapWithPathFilter(instance, annotation);
 
-          log.debug("  %s (order=%d, path=%s, exclude=%s)",
-              clazz.getSimpleName(), orderOf(clazz),
-              List.of(annotation.path()), List.of(annotation.exclude()));
-
           chain.add(wrapped);
         });
 
-    log.info("Found %d @MiddlewareComponent classes", chain.size());
+    log.info("Found %d Middlewares", chain.size());
 
     server.setMiddlewares(chain);
   }

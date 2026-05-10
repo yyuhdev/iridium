@@ -40,7 +40,7 @@ public final class ControllerRegistry implements IridiumComponentRegistry {
     final var controllers = ClasspathScanner.withAnnotation(
         RestController.class);
 
-    log.info("Found %d @RestController classes", controllers.size());
+    log.info("Found %d RestControllers", controllers.size());
 
     for (final var controllerClass : controllers) {
       final var instanceResult = this.instantiate(controllerClass);
@@ -67,8 +67,6 @@ public final class ControllerRegistry implements IridiumComponentRegistry {
 
         final var path = pathResult.ok().get();
 
-        log.debug("  %s %s -> %s.%s()", httpMethod, path,
-            controllerClass.getSimpleName(), method.getName());
         server.addRoute(path, httpMethod, instance, method);
       }
     }

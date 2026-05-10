@@ -20,7 +20,7 @@ public final class Log {
   private static final String CYAN = "\u001B[36m";
   private static final String YELLOW = "\u001B[33m";
   private static final String RED = "\u001B[31m";
-  private static final String BLUE = "\u001B[34m";
+  public static final String BLUE = "\u001B[34m";
   private static final String BOLD = "\u001B[1m";
   private static final String DIM = "\u001B[2m";
 
