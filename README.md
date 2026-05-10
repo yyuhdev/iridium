@@ -1,3 +1,5 @@
+[![wakatime](https://wakatime.com/badge/user/dd51c621-143b-4311-843c-7ee475851640/project/e41172fe-f898-40de-b667-0636e166c30d.svg)](https://wakatime.com/badge/user/dd51c621-143b-4311-843c-7ee475851640/project/e41172fe-f898-40de-b667-0636e166c30d)
+
 <div align="center">
   <img src="img/logo.png" alt="Logo" height="240">
 </div>
@@ -115,3 +117,5 @@ Requires Java 25.
 ```bash
 ./gradlew build
 ```
+
+<img src="https://yyuh.beer/banners/vim-tenor.gif" width="88" height="33" />
