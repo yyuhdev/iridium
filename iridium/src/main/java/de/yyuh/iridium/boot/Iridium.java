@@ -5,6 +5,8 @@ import org.jspecify.annotations.NullMarked;
 import de.yyuh.iridium.boot.controller.ControllerRegistry;
 import de.yyuh.iridium.boot.middleware.MiddlewareRegistry;
 import de.yyuh.iridium.boot.web.IridiumWebServer;
+import de.yyuh.iridium.shared.log.Log;
+import de.yyuh.iridium.shared.timer.Timer;
 
 /**
  * Bootstraps and starts an Iridium application.
@@ -18,6 +20,8 @@ import de.yyuh.iridium.boot.web.IridiumWebServer;
 @NullMarked
 public final class Iridium {
 
+  private static final Log log = Log.of(Iridium.class);
+
   /**
    * Constructs the application, registers all components, and
    * starts the web server.
@@ -30,15 +34,25 @@ public final class Iridium {
       final String host,
       final int port,
       final String[] args) {
+    final var startupTimer = Timer.start();
+    log.info("Starting Iridium on %s:%d ...", host, port);
+
     final var server = new IridiumWebServer(host, port);
 
+    final var mwTimer = Timer.start();
     final var middlewareRegistry = new MiddlewareRegistry(server);
     middlewareRegistry.scan();
+    log.info("Middleware scan completed in %dms", mwTimer.stop());
 
+    final var ctrlTimer = Timer.start();
     final var controllerRegistry = new ControllerRegistry(server);
     controllerRegistry.scan();
+    log.info("Controller scan completed in %dms", ctrlTimer.stop());
 
     server.start();
+
+    log.info("Iridium is ready on http://%s:%d/ (startup took %dms)",
+        host, port, startupTimer.stop());
   }
 
   /**

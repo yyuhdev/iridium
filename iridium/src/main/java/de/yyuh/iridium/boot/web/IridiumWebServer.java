@@ -13,6 +13,7 @@ import com.sun.net.httpserver.HttpServer;
 import de.yyuh.iridium.boot.middleware.Middleware;
 import de.yyuh.iridium.boot.request.RequestContext;
 import de.yyuh.iridium.boot.response.Response;
+import de.yyuh.iridium.shared.log.Log;
 import de.yyuh.iridium.shared.result.Result;
 
 /**
@@ -24,6 +25,8 @@ import de.yyuh.iridium.shared.result.Result;
  */
 @NullMarked
 public final class IridiumWebServer {
+
+  private static final Log log = Log.of(IridiumWebServer.class);
 
   private final HttpServer httpServer;
 
@@ -48,6 +51,8 @@ public final class IridiumWebServer {
     }
 
     this.httpServer = result.ok().get();
+
+    log.info("Web server bound to %s:%d", host, port);
 
     this.httpServer.createContext("/", exchange -> {
       final var ctx = new RequestContext(exchange);
@@ -81,6 +86,7 @@ public final class IridiumWebServer {
    */
   public void start() {
     httpServer.start();
+    log.info("HTTP server started");
   }
 
   /**
@@ -96,6 +102,8 @@ public final class IridiumWebServer {
       final String httpMethod,
       final Object controller,
       final Method handler) {
+    log.debug("Registering route: %s %s -> %s.%s",
+        httpMethod, path, controller.getClass().getSimpleName(), handler.getName());
     routes.add(new Route(httpMethod, PathPattern.parse(path), controller, handler));
   }
 

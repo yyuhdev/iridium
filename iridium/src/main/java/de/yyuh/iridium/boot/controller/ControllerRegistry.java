@@ -10,6 +10,7 @@ import de.yyuh.iridium.boot.controller.type.RestController;
 import de.yyuh.iridium.boot.request.type.RequestType;
 import de.yyuh.iridium.boot.scanner.ClasspathScanner;
 import de.yyuh.iridium.boot.web.IridiumWebServer;
+import de.yyuh.iridium.shared.log.Log;
 import de.yyuh.iridium.shared.result.Result;
 
 /**
@@ -19,6 +20,8 @@ import de.yyuh.iridium.shared.result.Result;
  */
 @NullMarked
 public final class ControllerRegistry implements IridiumComponentRegistry {
+
+  private static final Log log = Log.of(ControllerRegistry.class);
 
   private final IridiumWebServer server;
 
@@ -36,6 +39,8 @@ public final class ControllerRegistry implements IridiumComponentRegistry {
   public void scan() {
     final var controllers = ClasspathScanner.withAnnotation(
         RestController.class);
+
+    log.info("Found %d @RestController classes", controllers.size());
 
     for (final var controllerClass : controllers) {
       final var instanceResult = this.instantiate(controllerClass);
@@ -62,6 +67,8 @@ public final class ControllerRegistry implements IridiumComponentRegistry {
 
         final var path = pathResult.ok().get();
 
+        log.debug("  %s %s -> %s.%s()", httpMethod, path,
+            controllerClass.getSimpleName(), method.getName());
         server.addRoute(path, httpMethod, instance, method);
       }
     }

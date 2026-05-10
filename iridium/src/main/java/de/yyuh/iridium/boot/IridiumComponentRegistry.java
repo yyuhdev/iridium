@@ -1,5 +1,6 @@
 package de.yyuh.iridium.boot;
 
+import de.yyuh.iridium.shared.log.Log;
 import de.yyuh.iridium.shared.result.Result;
 
 /**
@@ -25,6 +26,9 @@ public interface IridiumComponentRegistry {
    *         with the error message
    */
   public default Result<Object, String> instantiate(final Class<?> clazz) {
+    final var log = Log.of(IridiumComponentRegistry.class);
+    log.debug("Instantiating %s", clazz.getSimpleName());
+
     return Result.of(() -> {
       return (Object) clazz.getDeclaredConstructor().newInstance();
     }).mapErr(Exception::getMessage);
