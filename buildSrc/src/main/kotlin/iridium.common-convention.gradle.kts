@@ -21,7 +21,7 @@ repositories {
 dependencies() {
   implementation("org.jspecify:jspecify:1.0.0")
 
-  api("de.yyuh.libs:celery:1.0.2-SNAPSHOT")
+  api("de.yyuh.libs:celery:1.0.3-SNAPSHOT")
 }
 
 tasks.withType<JavaCompile> {
