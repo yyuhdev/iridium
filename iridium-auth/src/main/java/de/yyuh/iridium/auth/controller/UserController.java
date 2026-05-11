@@ -1,6 +1,7 @@
 package de.yyuh.iridium.auth.controller;
 
 import org.jspecify.annotations.NullMarked;
+
 import de.yyuh.iridium.boot.controller.type.RestController;
 import de.yyuh.iridium.boot.request.RequestContext;
 import de.yyuh.iridium.boot.request.type.DELETE;

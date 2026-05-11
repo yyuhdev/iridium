@@ -6,10 +6,12 @@ import de.yyuh.iridium.boot.IridiumBootstrap;
 /**
  * Entry point for the example Iridium application.
  *
- * <p>Starts an HTTP server on {@code 0.0.0.0:8080} (default),
+ * <p>
+ * Starts an HTTP server on {@code 0.0.0.0:8080} (default),
  * discovers the {@link de.yyuh.iridium.example.controller.ExampleController}
  * and {@link de.yyuh.iridium.example.middleware.LoggingMiddleware},
- * and begins accepting requests.</p>
+ * and begins accepting requests.
+ * </p>
  */
 @IridiumBootstrap
 public final class Main {

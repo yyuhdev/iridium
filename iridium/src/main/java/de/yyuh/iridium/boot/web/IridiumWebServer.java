@@ -14,7 +14,7 @@ import de.yyuh.iridium.boot.middleware.Middleware;
 import de.yyuh.iridium.boot.request.RequestContext;
 import de.yyuh.iridium.boot.response.Response;
 import de.yyuh.iridium.shared.log.Log;
-import de.yyuh.iridium.shared.result.Result;
+import de.yyuh.libs.core.result.Result;
 
 /**
  * An embedded HTTP server backed by {@code com.sun.net.httpserver.HttpServer}.

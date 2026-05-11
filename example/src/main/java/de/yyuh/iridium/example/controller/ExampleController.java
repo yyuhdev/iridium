@@ -16,13 +16,16 @@ public final class ExampleController {
 
   private final Map<String, User> users = new ConcurrentHashMap<>();
 
-  public record CreateUser(String name, String email) {}
+  public record CreateUser(String name, String email) {
+  }
 
-  public record User(String id, String name, String email) {}
+  public record User(String id, String name, String email) {
+  }
 
   @GET("/users")
   public Response listUsers(final RequestContext ctx) {
     final var all = List.copyOf(users.values());
+
     return Response.json(all);
   }
 

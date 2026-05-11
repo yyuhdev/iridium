@@ -65,8 +65,10 @@ public final class HealthController {
     final var heap = memory.getHeapMemoryUsage();
 
     final var max = heap.getMax();
+
     if (max > 0) {
       final var usedRatio = (double) heap.getUsed() / (double) max;
+
       if (usedRatio > 0.95) {
         return Response.json(503, new ReadyStatus("DOWN",
             "heap usage %.1f%% exceeds 95%% threshold".formatted(usedRatio * 100)));

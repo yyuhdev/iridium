@@ -1,0 +1,16 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "${MONGODB_PORT}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test
+      MONGO_INITDB_ROOT_PASSWORD: sigma
+      MONGO_INITDB_DATABASE: sigma
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:

@@ -1,7 +1,7 @@
 package de.yyuh.iridium.boot;
 
 import de.yyuh.iridium.shared.log.Log;
-import de.yyuh.iridium.shared.result.Result;
+import de.yyuh.libs.core.result.Result;
 
 /**
  * Common contract for component registries that scan the classpath

@@ -11,7 +11,9 @@ import de.yyuh.iridium.boot.request.type.RequestType;
 import de.yyuh.iridium.boot.scanner.ClasspathScanner;
 import de.yyuh.iridium.boot.web.IridiumWebServer;
 import de.yyuh.iridium.shared.log.Log;
-import de.yyuh.iridium.shared.result.Result;
+import de.yyuh.libs.core.injection.Inject;
+import de.yyuh.libs.core.injection.Injector;
+import de.yyuh.libs.core.result.Result;
 
 /**
  * Discovers {@link RestController @RestController} classes on the
@@ -24,6 +26,9 @@ public final class ControllerRegistry implements IridiumComponentRegistry {
   private static final Log log = Log.of(ControllerRegistry.class);
 
   private final IridiumWebServer server;
+
+  @Inject
+  private Injector injector;
 
   /**
    * Constructs a registry tied to the given server.
@@ -50,6 +55,8 @@ public final class ControllerRegistry implements IridiumComponentRegistry {
       }
 
       final var instance = instanceResult.ok().get();
+
+      this.injector.inject(instance);
 
       for (final var method : controllerClass.getDeclaredMethods()) {
         final var annotation = findRequestAnnotation(method);

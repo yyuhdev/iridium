@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.jspecify.annotations.NullMarked;
 
+import de.yyuh.celery.Celery;
 import de.yyuh.iridium.boot.IridiumComponentRegistry;
 import de.yyuh.iridium.boot.annotation.Handle;
 import de.yyuh.iridium.boot.annotation.Order;
@@ -16,6 +17,8 @@ import de.yyuh.iridium.boot.scanner.ClasspathScanner;
 import de.yyuh.iridium.boot.web.GlobPattern;
 import de.yyuh.iridium.boot.web.IridiumWebServer;
 import de.yyuh.iridium.shared.log.Log;
+import de.yyuh.libs.core.injection.Inject;
+import de.yyuh.libs.core.injection.Injector;
 
 /**
  * Discovers {@link MiddlewareComponent @MiddlewareComponent} classes on
@@ -26,6 +29,9 @@ import de.yyuh.iridium.shared.log.Log;
 public final class MiddlewareRegistry implements IridiumComponentRegistry {
 
   private static final Log log = Log.of(MiddlewareRegistry.class);
+
+  @Inject
+  private Injector injector;
 
   private final IridiumWebServer server;
 
@@ -68,6 +74,8 @@ public final class MiddlewareRegistry implements IridiumComponentRegistry {
     }
 
     final var instance = instanceResult.ok().get();
+
+    this.injector.inject(injector);
 
     if (instance instanceof final Middleware middleware) {
       return middleware;

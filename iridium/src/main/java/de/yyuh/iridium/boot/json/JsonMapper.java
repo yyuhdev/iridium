@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import de.yyuh.iridium.shared.result.Result;
+import de.yyuh.libs.core.result.Result;
 
 /**
  * Shared {@link ObjectMapper} used for request deserialization and

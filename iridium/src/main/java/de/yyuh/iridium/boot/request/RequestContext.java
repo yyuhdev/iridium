@@ -20,7 +20,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import de.yyuh.iridium.boot.json.JsonMapper;
-import de.yyuh.iridium.shared.result.Result;
+import de.yyuh.libs.core.result.Result;
 
 /**
  * Wraps an incoming HTTP request and provides helpers for reading
