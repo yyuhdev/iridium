@@ -21,8 +21,8 @@ repositories {
 dependencies() {
   implementation("org.jspecify:jspecify:1.0.0")
 
-  api("de.yyuh.libs:celery:1.0.4-SNAPSHOT")
-  api("de.yyuh.libs.celery-platform:celery-mongodb:1.0.4-SNAPSHOT")
+  api("de.yyuh.libs:celery:1.0.8-SNAPSHOT")
+  api("de.yyuh.libs.celery-platform:celery-mongodb:1.0.8-SNAPSHOT")
 }
 
 tasks.withType<JavaCompile> {

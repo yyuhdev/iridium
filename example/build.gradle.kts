@@ -10,4 +10,5 @@ application {
 dependencies() {
   implementation(project(":iridium"))
   implementation(project(":shared"))
+  implementation(project(":iridium-auth"))
 }

@@ -48,7 +48,7 @@ public final class ExampleController {
       users.put(user.id(), user);
       return Response.json(201, user);
     })
-        .unwrapOrElse(e -> Response.badRequest("{\"error\":\"invalid json: " + e.getMessage() + "\"}"));
+        .unwrapOrElse(e -> Response.badRequest("{\"error\":\"invalid json: " + e + "\"}"));
   }
 
   @DELETE("/users/{id}")

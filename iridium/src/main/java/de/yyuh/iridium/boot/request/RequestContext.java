@@ -2,6 +2,7 @@ package de.yyuh.iridium.boot.request;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -26,9 +27,11 @@ import de.yyuh.libs.core.result.Result;
  * Wraps an incoming HTTP request and provides helpers for reading
  * the request and writing the response.
  *
- * <p>Gives access to method, URI, path, query parameters, headers,
+ * <p>
+ * Gives access to method, URI, path, query parameters, headers,
  * body, and path variables extracted by the router. Response sending
- * is done through the same context.</p>
+ * is done through the same context.
+ * </p>
  */
 @NullMarked
 public final class RequestContext {
@@ -193,8 +196,10 @@ public final class RequestContext {
    * @param type the target class
    * @return a {@link Result} containing the parsed object or an exception
    */
-  public <T> Result<T, Exception> body(final Class<T> type) {
-    return bodyBytes().<Exception>mapErr(e -> e).flatMap(bytes -> JsonMapper.read(bytes, type));
+  public <T> Result<T, String> body(final Class<T> type) {
+    return bodyBytes()
+        .mapErr(Exception::getMessage)
+        .flatMap(bytes -> JsonMapper.read(bytes, type).mapErr(Exception::getMessage));
   }
 
   /**
@@ -232,11 +237,17 @@ public final class RequestContext {
   /**
    * Sends a response with the given status and raw byte body.
    *
+   * <p>
+   * Uses an explicit try/catch rather than {@link Result#of(ThrowingSupplier)}
+   * because the supplier must return a non-null value for the {@code Ok} variant,
+   * yet the success type is {@link Void} which has no instances.
+   *
    * @param status the HTTP status code
    * @param body   the response body bytes
    * @return a {@link Result} indicating success or an {@link IOException}
    */
-  public Result<Void, IOException> send(final int status, final byte[] body) {
+  @SuppressWarnings("unchecked")
+  public Result<Integer, String> send(final int status, final byte[] body) {
     return Result.of(() -> {
       exchange.sendResponseHeaders(status, body.length == 0 ? -1 : body.length);
 
@@ -246,8 +257,8 @@ public final class RequestContext {
         }
       }
 
-      return null;
-    });
+      return status;
+    }).mapErr(Exception::getMessage);
   }
 
   /**
@@ -257,7 +268,7 @@ public final class RequestContext {
    * @param body   the response body text
    * @return a {@link Result} indicating success or an {@link IOException}
    */
-  public Result<Void, IOException> send(final int status, final String body) {
+  public Result<Integer, String> send(final int status, final String body) {
     return send(status, body.getBytes(StandardCharsets.UTF_8));
   }
 
@@ -267,7 +278,7 @@ public final class RequestContext {
    * @param status the HTTP status code
    * @return a {@link Result} indicating success or an {@link IOException}
    */
-  public Result<Void, IOException> send(final int status) {
+  public Result<Integer, String> send(final int status) {
     return send(status, "");
   }
 
@@ -277,7 +288,7 @@ public final class RequestContext {
    * @param body the response body text
    * @return a {@link Result} indicating success or an {@link IOException}
    */
-  public Result<Void, IOException> send(final String body) {
+  public Result<Integer, String> send(final String body) {
     return send(200, body);
   }
 
@@ -287,7 +298,7 @@ public final class RequestContext {
    * @param body the response body bytes
    * @return a {@link Result} indicating success or an {@link IOException}
    */
-  public Result<Void, IOException> send(final byte[] body) {
+  public Result<Integer, String> send(final byte[] body) {
     return send(200, body);
   }
 

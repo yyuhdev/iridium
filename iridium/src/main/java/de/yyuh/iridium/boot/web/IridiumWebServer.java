@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.jspecify.annotations.NullMarked;
 
+import com.mongodb.client.model.ReplaceOptions;
 import com.sun.net.httpserver.HttpServer;
 
 import de.yyuh.iridium.boot.middleware.Middleware;
@@ -65,7 +66,8 @@ public final class IridiumWebServer {
       Result.of(() -> {
         final var response = chain.handle(ctx);
         apply(ctx, response);
-        return null;
+
+        return response;
       }).ifErr(e -> {
         ctx.send(500, "Internal Server Error");
 
@@ -171,7 +173,7 @@ public final class IridiumWebServer {
     final var result = ctx.send(response.status(), response.body());
 
     if (result.isErr()) {
-      throw new RuntimeException("Failed to send response", result.unwrapErr());
+      throw new RuntimeException(result.err().get());
     }
   }
 
