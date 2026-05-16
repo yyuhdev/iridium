@@ -129,7 +129,13 @@ public final class AuthController {
       return Response.badRequest(result.err().get());
     }
 
-    LOG.info("Password reset with token: %s", result.ok().get().token());
+    final var req = result.ok().get();
+    final var resetResult = auth().resetPassword(req.token(), req.newPassword());
+    if (resetResult.isErr()) {
+      return Response.status(400, resetResult.unwrapErr());
+    }
+
+    LOG.info("Password reset succeeded for token: %s...", req.token().substring(0, Math.min(20, req.token().length())));
     return Response.ok();
   }
 

@@ -119,6 +119,49 @@ public final class AuthService {
     return findUserById(userId);
   }
 
+  public Result<Void, String> resetPassword(final String rawToken, final String newPassword) {
+    final var platform = getPlatform();
+
+    final var claimsResult = jwt.validateToken(rawToken);
+    if (claimsResult.isErr()) {
+      return Result.err("Invalid or expired reset token");
+    }
+
+    final var userId = UUID.fromString(claimsResult.unwrap().getSubject());
+    final var userResult = findUserById(userId);
+    if (userResult.isErr()) {
+      return Result.err("User not found");
+    }
+
+    final var user = userResult.unwrap();
+    final var hashResult = PasswordHasher.hashPassword(newPassword);
+    if (hashResult.isErr()) {
+      return Result.err("Failed to hash password: " + hashResult.unwrapErr());
+    }
+
+    final var updatedUser = new User(
+        user.id(),
+        user.username(),
+        user.email(),
+        hashResult.unwrap(),
+        user.role());
+
+    platform.defaultProvider().save(updatedUser).join();
+
+    @SuppressWarnings("unchecked")
+    final var query = (IQuery<IEntity>) (IQuery<?>) EmptyQuery.of(RefreshToken.class);
+    final var tokens = platform.defaultProvider().find(query).join();
+    for (final var token : tokens) {
+      final var rt = (RefreshToken) token;
+      if (rt.userId().equals(userId)) {
+        platform.defaultProvider().delete(tokenQuery(rt.id())).join();
+      }
+    }
+
+    LOG.info("Password reset for user %s", userId);
+    return Result.ok(null);
+  }
+
   public Result<Void, String> deleteAccount(final UUID userId) {
     final var platform = getPlatform();
     platform.defaultProvider().delete(userQuery(userId)).join();
